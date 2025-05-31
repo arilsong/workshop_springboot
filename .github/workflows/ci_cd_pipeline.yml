@@ -106,3 +106,4 @@ jobs:
         run: |
           sleep 10
           curl -f http://localhost:8080/      
+#teste de runner na maquina virtual
