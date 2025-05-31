@@ -41,5 +41,8 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
+      - name: mavem excutavel
+        run: chmod +x ./mvnw
+
       - name: Checkagem do codigo
         run: ./mvnw checkstyle:check
