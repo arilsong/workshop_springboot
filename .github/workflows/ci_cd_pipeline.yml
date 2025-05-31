@@ -106,4 +106,37 @@ jobs:
         run: |
           sleep 10
           curl -f http://localhost:8080/      
-#teste de runner na maquina virtual
+
+  deploy-job:
+    name: Deploy Application
+    runs-on: [ self-hosted, linux, x64 ]
+    needs: run-built-image-job
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Download Docker image
+        uses: actions/download-artifact@v4
+        with:
+          name: app-image
+
+      - name: Load Docker image
+        run: docker load -i app.tar
+
+      - name: Stop existing container
+        run: |
+          docker stop my-app || true
+          docker rm my-app || true
+
+      - name: Deploy new version
+        run: |
+          docker run -d \
+            -p 8080:8080 \
+            --name my-app \
+            --restart unless-stopped \
+            my-app:latest
+
+      - name: Verify deployment
+        run: |
+          sleep 15
+          curl -f http://localhost:8080/ || exit 1
+          echo "Deploy realizado com sucesso!"
