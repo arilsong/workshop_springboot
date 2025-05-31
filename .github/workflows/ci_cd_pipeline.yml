@@ -98,6 +98,11 @@ jobs:
       - name: Load Docker image
         run: docker load -i app.tar
 
+      - name: Stop existing test container
+        run: |
+          docker stop my-running-app || true
+          docker rm my-running-app || true
+
       - name: Run Docker container
         run: |
           docker run -d -p 8080:8080 --name my-running-app my-app:latest
@@ -105,11 +110,16 @@ jobs:
       - name: Test application
         run: |
           sleep 10
-          curl -f http://localhost:8080/      
+          curl -f http://localhost:8080/
+
+      - name: Stop test container
+        run: |
+          docker stop my-running-app || true
+          docker rm my-running-app || true
 
   deploy-job:
     name: Deploy Application
-    runs-on: [ self-hosted, linux, x64 ]
+    runs-on: [self-hosted, linux, x64]
     needs: run-built-image-job
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
